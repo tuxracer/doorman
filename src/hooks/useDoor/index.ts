@@ -1,9 +1,12 @@
 import useSWR from "swr";
-import { Door, DoorSchema, DoorUpdate, DoorUpdateSchema } from "@/schemas/door";
+import { Door, DoorSchema, DoorUpdate } from "@/schemas/door";
+import { DOOR_STATUS_REFRESH_INTERVAL_MS } from "@/consts";
 
 export const useDoor = () => {
     const fetcher = (url: string) => fetch(url).then(res => res.json());
-    const { data, error, isLoading, mutate } = useSWR<Door>("/api/door", fetcher);
+    const { data, error, isLoading, mutate } = useSWR<Door>("/api/door", fetcher, {
+        refreshInterval: DOOR_STATUS_REFRESH_INTERVAL_MS,
+    });
 
     const update = async (update: DoorUpdate) => {
         // optimistic update, if possible

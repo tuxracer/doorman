@@ -15,3 +15,6 @@ export const UNAVAILABLE_MESSAGE: string | undefined = "Unavailable. Please try 
 
 /** SMS message to send when the door is unlocked */
 export const UNLOCK_NOTIFICATION_MESSAGE: string | undefined = "The door has been unlocked 🔓";
+
+/** Refresh interval in milliseconds for the door status */
+export const DOOR_STATUS_REFRESH_INTERVAL_MS: number | undefined = 30_000;
