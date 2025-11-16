@@ -13,7 +13,6 @@ Perfect for deliveries 📦 or letting in guests without needing to pick up the 
 - 🔑 Automatic door unlocking using DTMF tones
 - 🌐 Web interface to enable or disable unlocking
 - 📊 Activity tracking for unlocks, calls, and rejections
-- 📱 SMS notifications when the door is unlocked (optional)
 - 🛠️ Customizable behavior and timing
 
 ---
@@ -73,6 +72,7 @@ BLACK_LISTED_PHONE_NUMBERS=+1111111111,+2222222222
 ```
 
 **Optional Variables:**
+
 - `NOTIFY_PHONE_NUMBER`: Phone number to notify by SMS when the door is unlocked (e.g., `+1234567890`)
 - `WHITE_LISTED_PHONE_NUMBERS`: Comma-separated list of phone numbers allowed to unlock (e.g., `+1234567890,+0987654321`)
 - `BLACK_LISTED_PHONE_NUMBERS`: Comma-separated list of phone numbers blocked from unlocking (e.g., `+1111111111,+2222222222`)
@@ -88,7 +88,6 @@ Edit `src/consts.ts` to customize behavior:
 - `DOOR_UNLOCK_DELAY_SECONDS`: Delay before unlocking (default is `3` seconds)
 - `HANGUP_DELAY_SECONDS`: Delay before hanging up (default is `3` seconds)
 - `UNAVAILABLE_MESSAGE`: Message played when auto-unlock is disabled
-- `UNLOCK_NOTIFICATION_MESSAGE`: SMS message sent on unlock (if `NOTIFY_PHONE_NUMBER` is set)
 
 ---
 

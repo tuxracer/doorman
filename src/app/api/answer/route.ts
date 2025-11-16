@@ -1,10 +1,7 @@
-import { DOOR_UNLOCK_DELAY_SECONDS, DOOR_UNLOCK_DIGIT, HANGUP_DELAY_SECONDS, UNAVAILABLE_MESSAGE, UNLOCK_NOTIFICATION_MESSAGE, TIMES_TO_EMIT_UNLOCK_DIGIT } from "@/consts";
+import { DOOR_UNLOCK_DELAY_SECONDS, DOOR_UNLOCK_DIGIT, HANGUP_DELAY_SECONDS, UNAVAILABLE_MESSAGE, TIMES_TO_EMIT_UNLOCK_DIGIT } from "@/consts";
 import { DoorStore } from "@/stores/door";
-import { sendText } from "@/utils";
 import { NextResponse } from "next/server";
 import twilio from "twilio";
-
-const notifyPhoneNumber = process.env.NOTIFY_PHONE_NUMBER;
 
 // Parse comma-separated phone numbers from environment variables
 const getPhoneNumberList = (str?: string): string[] => {
@@ -50,11 +47,6 @@ export async function POST(request: Request) {
     // Check if automatic unlocking is enabled
     if (!door.isUnlockAllowed) {
         return handleRejected();
-    }
-
-    // Send notification if enabled
-    if (notifyPhoneNumber && UNLOCK_NOTIFICATION_MESSAGE) {
-        await sendText(notifyPhoneNumber, UNLOCK_NOTIFICATION_MESSAGE);
     }
 
     await DoorStore.update({ lastUnlockedAt: Date.now() });

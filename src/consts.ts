@@ -13,8 +13,5 @@ export const HANGUP_DELAY_SECONDS: number | undefined = 3;
 /** Message to play when the door unlock is disabled */
 export const UNAVAILABLE_MESSAGE: string | undefined = "Unavailable. Please try again later.";
 
-/** SMS message to send when the door is unlocked */
-export const UNLOCK_NOTIFICATION_MESSAGE: string | undefined = "The door has been unlocked 🔓";
-
 /** Refresh interval in milliseconds for the door status */
 export const DOOR_STATUS_REFRESH_INTERVAL_MS: number | undefined = 30_000;
