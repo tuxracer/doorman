@@ -18,7 +18,7 @@ const sendResponse = (twiml: twilio.twiml.VoiceResponse) => {
 
 const handleRejected = async () => {
     const twiml = new twilio.twiml.VoiceResponse();
-    await DoorStore.update({ lastRejectedAt: Date.now() });
+    await DoorStore.update({ lastRejectedAt: new Date().toISOString() });
     if (UNAVAILABLE_MESSAGE) twiml.say(UNAVAILABLE_MESSAGE);
     return sendResponse(twiml);
 };
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     const twiml = new twilio.twiml.VoiceResponse();
     const digits = DOOR_UNLOCK_DIGIT.toString().repeat(TIMES_TO_EMIT_UNLOCK_DIGIT || 1);
 
-    await DoorStore.update({ lastAnsweredAt: Date.now() });
+    await DoorStore.update({ lastAnsweredAt: new Date().toISOString() });
 
     // Get caller's phone number from Twilio request
     const formData = await request.formData();
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         return handleRejected();
     }
 
-    await DoorStore.update({ lastUnlockedAt: Date.now() });
+    await DoorStore.update({ lastUnlockedAt: new Date().toISOString() });
 
     if (DOOR_UNLOCK_DELAY_SECONDS) twiml.pause({ length: DOOR_UNLOCK_DELAY_SECONDS });
     twiml.play({ digits });

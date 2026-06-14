@@ -9,7 +9,7 @@ export const Controller: React.FC = () => {
         return <div>Error: {error.message}</div>;
     }
 
-    const renderDate = (date?: number | null) => {
+    const renderDate = (date?: string | null) => {
         if (isLoading) return "Unknown";
         if (!date) return "Never";
         return new Date(date).toLocaleString();
