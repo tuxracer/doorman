@@ -48,7 +48,7 @@ Perfect for deliveries 📦 or letting in guests without needing to pick up the 
 
 - Node.js with npm (or yarn, pnpm, or bun)
 - A Twilio account with a phone number
-- An Upstash Redis instance
+- A Supabase project
 - Required environment variables
 
 ### Install Dependencies
@@ -62,8 +62,8 @@ npm install
 Create a `.env.local` file in the root directory:
 
 ```env
-UPSTASH_REDIS_REST_URL=your_redis_url
-UPSTASH_REDIS_REST_TOKEN=your_redis_token
+SUPABASE_URL=your_supabase_url
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 TWILIO_ACCOUNT_SID=your_twilio_account_sid
 TWILIO_AUTH_TOKEN=your_twilio_auth_token
 NOTIFY_PHONE_NUMBER=+1234567890
@@ -146,7 +146,7 @@ The interface shows:
 
 - **Next.js** – Web app and API routes
 - **Twilio** – Call handling and DTMF control
-- **Upstash Redis** – State storage
+- **Supabase** – State storage
 - **SWR** – Data fetching and caching
 
 ---
