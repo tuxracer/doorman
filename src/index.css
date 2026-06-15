@@ -22,6 +22,7 @@
     --good: #79c98c;
     --info: #79a6d6;
     --bad: #e0795f;
+    --bad-rgb: 224, 121, 95;
 
     /*
      * Accent is driven by door state and falls back to a neutral idle tone.
@@ -47,6 +48,15 @@
     --accent-bright: #b9d2de;
     --accent-text: #b9d2de;
     --accent-rgb: 132, 164, 182;
+  }
+
+  /* Disconnected: drain the brass accent to a calm neutral so a stale reading
+     never looks live. Higher specificity than the state rules so it wins. */
+  .dm-stage[data-offline="true"] {
+    --accent: #8b8073;
+    --accent-bright: #b3a896;
+    --accent-text: #ab9f8d;
+    --accent-rgb: 139, 128, 115;
   }
 
   * {
@@ -385,6 +395,47 @@
     animation: dm-pulse 2.4s ease-in-out infinite;
   }
 
+  /* Disconnected cues. Accent is drained elsewhere; these carry the clay tone.
+     Clay values come from --bad / --bad-rgb so light and dark both work. */
+  [data-offline="true"] .dm-glow {
+    animation: none;
+    opacity: 0.3;
+  }
+  [data-offline="true"] .dm-switch {
+    opacity: 0.45;
+  }
+  [data-offline="true"] .dm-row {
+    opacity: 0.7;
+  }
+  [data-offline="true"] .dm-badge {
+    border-color: rgba(var(--bad-rgb), 0.45);
+    background: rgba(var(--bad-rgb), 0.12);
+    color: var(--bad);
+  }
+  [data-offline="true"] .dm-badge-dot {
+    background: var(--bad);
+    animation: none;
+  }
+  .dm-offline-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 12px;
+    color: var(--bad);
+    background: rgba(var(--bad-rgb), 0.1);
+    border: 1px solid rgba(var(--bad-rgb), 0.28);
+  }
+  .dm-offline-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--bad);
+    box-shadow: 0 0 10px -1px var(--bad);
+  }
+
   /* Staggered entrance. */
   .dm-rise {
     animation: dm-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -480,6 +531,7 @@
       --good: #3f9d5d;
       --info: #3f7fbf;
       --bad: #cf5b3f;
+      --bad-rgb: 207, 91, 63;
 
       --accent: #a99a85;
       --accent-bright: #cabfa9;
@@ -498,6 +550,13 @@
       --accent-bright: #83aec4;
       --accent-text: #3c6076;
       --accent-rgb: 90, 134, 160;
+    }
+
+    .dm-stage[data-offline="true"] {
+      --accent: #a99a85;
+      --accent-bright: #cabfa9;
+      --accent-text: #6a5f4e;
+      --accent-rgb: 169, 154, 133;
     }
   }
 }

@@ -74,3 +74,22 @@ export const KeyIcon = ({ className }: IconProps) => (
     />
   </svg>
 );
+
+/** Wifi waves struck through: no connection. */
+export const WifiOffIcon = ({ className }: IconProps) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M2 8.5a16 16 0 0 1 20 0M5 12a11 11 0 0 1 14 0M8.5 15.5a6 6 0 0 1 7 0"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+    />
+    <circle cx="12" cy="19" r="1.2" fill="currentColor" />
+    <path
+      d="M3 3 21 21"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+    />
+  </svg>
+);
