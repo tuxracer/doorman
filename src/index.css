@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-serif: "Fraunces", Georgia, "Times New Roman", serif;
-  --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-serif: ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 @layer base {
@@ -155,7 +155,7 @@
     );
   }
 
-  /* Eyebrow / label / data type system: Space Mono, tracked, upper. */
+  /* Eyebrow / label / data type system: system monospace, tracked, upper. */
   .dm-mono {
     font-family: var(--font-mono);
   }
