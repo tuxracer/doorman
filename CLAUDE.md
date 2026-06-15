@@ -37,6 +37,12 @@ No AI-isms in any docs, comments, or commit messages:
 - `index.html` + `src/main.tsx`: Vite SPA entry; mounts `<Controller />` on the client.
 - `vite.config.ts`: `@hono/vite-dev-server` runs the Hono app inside the dev server so
   `/api/*` works under `pnpm dev`; also the Tailwind and React Compiler plugins.
+- `vite.config.ts` also wires `vite-plugin-pwa` (Workbox): it generates the service
+  worker and web app manifest, and `@vite-pwa/assets-generator` (`pwa-assets.config.ts`)
+  builds the icon set from `public/favicon.svg` at build time (the generated PNGs and
+  `favicon.ico` are emitted into `dist/`, not committed). The service worker precaches
+  the static app shell only. `/api` is never cached (network only), so live door state
+  is always fresh. `vercel.json` makes `sw.js` and the manifest revalidate.
 - `src/stores/door.ts`: Supabase data-access layer (`DoorStore`). Server-only by
   design (reads `SUPABASE_SECRET_KEY`); never import it from client code. Only
   `src/server/app.ts` imports it.

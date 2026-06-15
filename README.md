@@ -142,6 +142,15 @@ The interface shows:
 
 ---
 
+## Install to your home screen
+
+Doorman is a PWA. Open the site in a mobile browser and choose "Add to Home
+Screen" (iOS Safari) or "Install app" (Android Chrome) to launch it standalone,
+one tap from the door toggle. Toggling still needs a live connection. The app
+does not control the door while offline.
+
+---
+
 ## Tech Stack
 
 - **Vite**: SPA build and dev server
