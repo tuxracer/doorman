@@ -22,6 +22,17 @@ No AI-isms in any docs, comments, or commit messages:
 - Avoid filler buzzwords ("seamless", "robust", "delve", "leverage", "effortless").
 - Write plainly and directly. Prefer short, concrete sentences.
 
+## Design
+
+No AI-generated design clichés in the UI or styles:
+
+- Never make things glow. No glowing effects, neon `box-shadow`/`text-shadow`
+  halos, or `filter: drop-shadow()` used as a glow.
+- Avoid the other tells: purple-to-blue gradients, gratuitous glassmorphism
+  (heavy `backdrop-filter` blur), oversized hero emoji, and decorative motion
+  added for its own sake.
+- Keep it plain and grounded. Solid colors and restrained shadows over effects.
+
 ## Executing plans
 
 When executing a written implementation plan, always use subagent-driven development:
