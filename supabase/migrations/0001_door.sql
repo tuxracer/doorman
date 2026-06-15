@@ -8,6 +8,6 @@ create table door (
   constraint door_singleton check (id)
 );
 
--- Lock the table down. The server uses the service-role key, which bypasses RLS.
--- No policies are created, so anon/authenticated keys get zero access.
+-- Lock the table down. The server uses the Supabase secret key (sb_secret_), which
+-- bypasses RLS. No policies are created, so anon/publishable keys get zero access.
 alter table door enable row level security;

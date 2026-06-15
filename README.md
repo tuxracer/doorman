@@ -26,7 +26,7 @@ Perfect for deliveries 📦 or letting in guests without needing to pick up the 
    - It waits a few seconds
    - Sends the unlock digit (e.g. `9`)
    - Hangs up after a short delay
-5. Optionally, it sends you an SMS notification
+5. _(Planned, not yet implemented)_ Optionally sends you an SMS notification
 6. If unlocking is disabled, the caller hears an "unavailable" message
 
 ---
@@ -46,7 +46,7 @@ Perfect for deliveries 📦 or letting in guests without needing to pick up the 
 
 ### Prerequisites
 
-- Node.js with npm (or yarn, pnpm, or bun)
+- Node.js and [pnpm](https://pnpm.io) (this project is pinned to pnpm via `packageManager`)
 - A Twilio account with a phone number
 - A Supabase project
 - Required environment variables
@@ -54,7 +54,7 @@ Perfect for deliveries 📦 or letting in guests without needing to pick up the 
 ### Install Dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### Environment Variables
@@ -76,6 +76,12 @@ BLACK_LISTED_PHONE_NUMBERS=+1111111111,+2222222222
 - `NOTIFY_PHONE_NUMBER`: Phone number to notify by SMS when the door is unlocked (e.g., `+1234567890`)
 - `WHITE_LISTED_PHONE_NUMBERS`: Comma-separated list of phone numbers allowed to unlock (e.g., `+1234567890,+0987654321`)
 - `BLACK_LISTED_PHONE_NUMBERS`: Comma-separated list of phone numbers blocked from unlocking (e.g., `+1111111111,+2222222222`)
+
+> ℹ️ **Implementation note:** The app currently uses Twilio only to generate TwiML
+> for the voice webhook, which needs **no credentials**. `TWILIO_ACCOUNT_SID`,
+> `TWILIO_AUTH_TOKEN`, `NOTIFY_PHONE_NUMBER`, and the SMS notification are documented
+> for the planned feature but are **not yet wired into the code**. Only `SUPABASE_URL`,
+> `SUPABASE_SECRET_KEY`, and the phone-list variables are read today.
 
 ---
 
@@ -144,10 +150,10 @@ The interface shows:
 
 ## Tech Stack
 
-- **Next.js** – Web app and API routes
-- **Twilio** – Call handling and DTMF control
-- **Supabase** – State storage
-- **SWR** – Data fetching and caching
+- **Next.js**: Web app and API routes
+- **Twilio**: Call handling and DTMF control
+- **Supabase**: State storage
+- **SWR**: Data fetching and caching
 
 ---
 
