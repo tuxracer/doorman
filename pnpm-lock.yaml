@@ -23,9 +23,6 @@ importers:
       react-dom:
         specifier: 19.2.0
         version: 19.2.0(react@19.2.0)
-      server-only:
-        specifier: ^0.0.1
-        version: 0.0.1
       swr:
         specifier: 2.3.6
         version: 2.3.6(react@19.2.0)
@@ -879,9 +876,6 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  server-only@0.0.1:
-    resolution: {integrity: sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==}
-
   side-channel-list@1.0.0:
     resolution: {integrity: sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==}
     engines: {node: '>= 0.4'}
@@ -1699,8 +1693,6 @@ snapshots:
   semver@6.3.1: {}
 
   semver@7.7.3: {}
-
-  server-only@0.0.1: {}
 
   side-channel-list@1.0.0:
     dependencies:
