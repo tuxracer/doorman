@@ -1,5 +1,5 @@
 import { handle } from "hono/vercel";
-import app from "../src/server/app";
+import app from "../src/server/app.js";
 
 // Vercel maps this file to /api/door and runs the existing Hono app as a
 // Function. Hono matches the full request path, so the routes defined in

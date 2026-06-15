@@ -71,8 +71,11 @@ runs on the server by design (it serves data and TwiML, it does not render UI).
 - **Phone lists** are parsed once at module load. Blacklist always rejects; whitelist
   is enforced only when non-empty.
 - **Path alias:** `@/*` maps to `src/*` (configured in `vite.config.ts` and `tsconfig.json`).
-  Exception: the server import graph (`src/server/app.ts`, `src/stores/door.ts`) uses
-  relative imports, because Vercel's Function bundler does not resolve tsconfig path aliases.
+  Exception: the server import graph (`api/*`, `src/server/*`, `src/stores/door.ts`) uses
+  relative imports with explicit `.js` extensions. Vercel compiles each Function file to
+  ESM without bundling, so Node ESM needs the extension at runtime and cannot resolve `@/`.
+  Vite and tsc (`moduleResolution: "bundler"`) map the `.js` specifier back to the `.ts`
+  source, so local dev and the build still work. Do not drop these extensions.
 
 ## Environment
 

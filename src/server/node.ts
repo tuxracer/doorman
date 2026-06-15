@@ -1,6 +1,6 @@
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
-import app from "./app";
+import app from "./app.js";
 
 // Serve built static assets, falling back to the SPA entry for any
 // route that is not an /api route or a real file. The /api routes are
