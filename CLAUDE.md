@@ -37,6 +37,15 @@ No AI-isms in any docs, comments, or commit messages:
 - `src/consts.ts`: tunable behavior (unlock digit, delays, refresh interval).
 - `supabase/migrations/0001_door.sql`: schema.
 
+## Rendering
+
+**Client-side rendering and hydration only.** Render and hydrate the UI entirely
+on the client. Never use server-side rendering (SSR) or server-side hydration.
+UI components are Client Components (`"use client"`); do not render UI from Server
+Components. This does not change the API route handlers in `src/app/api/*` or the
+server-only `DoorStore`, which run on the server by design (they serve data, they
+do not render UI).
+
 ## Patterns & gotchas
 
 - **Single-row table.** `door.id` is `boolean primary key default true` with a
