@@ -88,7 +88,6 @@ export const Controller: React.FC = () => {
       data-state={state}
       data-offline={disconnected ? "true" : undefined}
     >
-      <div className="dm-glow" />
       <div className="dm-grain" />
 
       <section className="dm-panel">
@@ -217,7 +216,6 @@ const ErrorPanel: React.FC<{ message: string; offline: boolean }> = ({
   offline,
 }) => (
   <main className="dm-stage" data-state="secure">
-    <div className="dm-glow" />
     <div className="dm-grain" />
     <section className="dm-panel text-center">
       <span

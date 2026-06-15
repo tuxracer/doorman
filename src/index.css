@@ -81,7 +81,7 @@
 }
 
 @layer components {
-  /* Page scaffold: full viewport with the atmospheric background behind it. */
+  /* Page scaffold: full viewport over the calm background with grain behind it. */
   .dm-stage {
     position: relative;
     min-height: 100dvh;
@@ -92,30 +92,6 @@
     padding-top: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-top));
     padding-bottom: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-bottom));
     overflow: hidden;
-  }
-
-  /* State-tinted radial glow. Swaps color with the door state, breathes when live. */
-  .dm-glow {
-    position: fixed;
-    inset: -25% -10% auto -10%;
-    height: 70vh;
-    pointer-events: none;
-    z-index: 0;
-    background: radial-gradient(
-      55% 60% at 50% 0%,
-      rgba(var(--accent-rgb), 0.32),
-      rgba(var(--accent-rgb), 0.06) 45%,
-      transparent 70%
-    );
-    filter: blur(8px);
-    opacity: 0.85;
-    transition: opacity 0.6s ease;
-  }
-  [data-state="live"] .dm-glow {
-    animation: dm-breathe 7s ease-in-out infinite;
-  }
-  [data-state="idle"] .dm-glow {
-    opacity: 0.4;
   }
 
   /* Fine film grain so the dark panel never reads as flat black. */
@@ -219,7 +195,6 @@
     height: 7px;
     border-radius: 999px;
     background: var(--accent);
-    box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.7);
     transition: background-color 0.5s ease;
   }
   [data-state="live"] .dm-badge-dot {
@@ -268,8 +243,7 @@
       var(--bg-3);
     box-shadow:
       inset 0 1px 3px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(var(--accent-rgb), 0.14),
-      0 16px 44px -12px rgba(var(--accent-rgb), 0.55);
+      0 16px 40px -16px rgba(0, 0, 0, 0.6);
   }
   .dm-switch:focus-visible {
     outline: none;
@@ -305,7 +279,8 @@
     background: linear-gradient(180deg, var(--accent-bright), var(--accent));
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.55),
-      0 8px 22px -4px rgba(var(--accent-rgb), 0.75);
+      inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+      0 8px 18px -6px rgba(0, 0, 0, 0.7);
   }
   .dm-switch[data-indeterminate="true"] .dm-switch-knob {
     transform: translateX(72px);
@@ -382,7 +357,6 @@
     height: 8px;
     border-radius: 999px;
     flex: none;
-    box-shadow: 0 0 12px -1px currentColor;
   }
 
   /* Live sync indicator in the footer. */
@@ -391,16 +365,11 @@
     height: 6px;
     border-radius: 999px;
     background: var(--good);
-    box-shadow: 0 0 10px -1px var(--good);
     animation: dm-pulse 2.4s ease-in-out infinite;
   }
 
   /* Disconnected cues. Accent is drained elsewhere; these carry the clay tone.
      Clay values come from --bad / --bad-rgb so light and dark both work. */
-  [data-offline="true"] .dm-glow {
-    animation: none;
-    opacity: 0.3;
-  }
   [data-offline="true"] .dm-switch {
     opacity: 0.45;
   }
@@ -433,7 +402,6 @@
     height: 6px;
     border-radius: 999px;
     background: var(--bad);
-    box-shadow: 0 0 10px -1px var(--bad);
   }
 
   /* Staggered entrance. */
@@ -465,27 +433,14 @@
   }
 }
 
-@keyframes dm-breathe {
-  0%,
-  100% {
-    opacity: 0.7;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.06);
-  }
-}
-
+/* Live and pending cues fade in place. No expanding halo, just a quiet pulse. */
 @keyframes dm-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.55);
     opacity: 1;
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(var(--accent-rgb), 0);
-    opacity: 0.85;
+    opacity: 0.5;
   }
 }
 
@@ -497,7 +452,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .dm-rise,
-  .dm-glow,
   .dm-badge-dot,
   .dm-live-dot,
   .dm-switch-knob,
@@ -563,17 +517,6 @@
 
 @layer components {
   @media (prefers-color-scheme: light) {
-    /* Softer, warmer glow so it reads as light rather than a colored haze. */
-    .dm-glow {
-      background: radial-gradient(
-        55% 60% at 50% 0%,
-        rgba(var(--accent-rgb), 0.2),
-        rgba(var(--accent-rgb), 0.05) 45%,
-        transparent 70%
-      );
-      opacity: 0.6;
-    }
-
     /* Multiply lets the grain texture show against a pale surface. */
     .dm-grain {
       mix-blend-mode: multiply;
@@ -598,8 +541,7 @@
     .dm-switch[data-on="true"] .dm-switch-track {
       box-shadow:
         inset 0 1px 3px rgba(58, 44, 20, 0.14),
-        0 0 0 1px rgba(var(--accent-rgb), 0.3),
-        0 14px 36px -14px rgba(var(--accent-rgb), 0.55);
+        0 14px 32px -16px rgba(58, 44, 20, 0.4);
     }
     .dm-switch:focus-visible .dm-switch-track {
       box-shadow:
