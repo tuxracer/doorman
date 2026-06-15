@@ -39,3 +39,4 @@ yarn-error.log*
 
 # superpowers planning artifacts (brainstorm specs/plans — kept local, not tracked)
 /docs/superpowers/
+/.superpowers/
