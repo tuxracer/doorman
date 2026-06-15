@@ -9,5 +9,6 @@ app.use("/*", serveStatic({ root: "./dist" }));
 app.get("/*", serveStatic({ path: "./dist/index.html" }));
 
 const port = Number(process.env.PORT ?? 3000);
-serve({ fetch: app.fetch, port });
-console.log(`Doorman listening on http://localhost:${port}`);
+serve({ fetch: app.fetch, port }, () => {
+  console.log(`Doorman listening on http://localhost:${port}`);
+});

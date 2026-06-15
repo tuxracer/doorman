@@ -49,10 +49,12 @@ app.post("/api/answer", async (c) => {
   const formData = await c.req.formData();
   const callerPhoneNumber = formData.get("From") as string | null;
 
+  // Check if caller is blacklisted
   if (callerPhoneNumber && blackListedPhoneNumbers.includes(callerPhoneNumber)) {
     return rejected();
   }
 
+  // Check if whitelist is enforced and caller is not whitelisted
   if (
     callerPhoneNumber &&
     whiteListedPhoneNumbers.length &&
@@ -61,6 +63,7 @@ app.post("/api/answer", async (c) => {
     return rejected();
   }
 
+  // Check if automatic unlocking is enabled
   if (!door.isUnlockAllowed) {
     return rejected();
   }
