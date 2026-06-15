@@ -22,6 +22,14 @@ No AI-isms in any docs, comments, or commit messages:
 - Avoid filler buzzwords ("seamless", "robust", "delve", "leverage", "effortless").
 - Write plainly and directly. Prefer short, concrete sentences.
 
+## Executing plans
+
+When executing a written implementation plan, always use subagent-driven development:
+a fresh implementer subagent per task, with a spec review and code-quality review
+between tasks. Do not offer inline execution and do not ask which mode to use. Just
+proceed subagent-driven. The maintainer handles any live verification that needs a
+real browser or device.
+
 ## Architecture
 
 - `src/server/app.ts`: Hono app with all `/api` routes.
