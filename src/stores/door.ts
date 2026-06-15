@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
-import { Door, DoorSchema, DoorUpdate, DoorUpdateSchema } from "@/schemas/door";
+import { Door, DoorSchema, DoorUpdate, DoorUpdateSchema } from "../schemas/door";
 
 const TABLE = "door";
-// Matches `id boolean primary key default true` in the migration — enforces a single row.
+// Matches `id boolean primary key default true` in the migration. Enforces a single row.
 const ROW_ID = true;
 
 const COLUMNS =

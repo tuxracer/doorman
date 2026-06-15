@@ -31,6 +31,9 @@ No AI-isms in any docs, comments, or commit messages:
   - `GET`/`PATCH`/`DELETE /api/door`: JSON REST for door state.
 - `src/server/node.ts`: production entry. Serves the built SPA from `dist/` and the
   `/api` routes via `@hono/node-server` on one port.
+- `api/door.ts`, `api/answer.ts`: thin Vercel Function adapters. Each wraps the same
+  Hono `app` with `hono/vercel`'s `handle` so `/api/*` runs as Vercel Functions
+  (Vercel's Vite preset only serves static files, it does not run `node.ts`).
 - `index.html` + `src/main.tsx`: Vite SPA entry; mounts `<Controller />` on the client.
 - `vite.config.ts`: `@hono/vite-dev-server` runs the Hono app inside the dev server so
   `/api/*` works under `pnpm dev`; also the Tailwind and React Compiler plugins.
@@ -68,6 +71,8 @@ runs on the server by design (it serves data and TwiML, it does not render UI).
 - **Phone lists** are parsed once at module load. Blacklist always rejects; whitelist
   is enforced only when non-empty.
 - **Path alias:** `@/*` maps to `src/*` (configured in `vite.config.ts` and `tsconfig.json`).
+  Exception: the server import graph (`src/server/app.ts`, `src/stores/door.ts`) uses
+  relative imports, because Vercel's Function bundler does not resolve tsconfig path aliases.
 
 ## Environment
 

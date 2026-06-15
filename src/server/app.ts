@@ -7,9 +7,9 @@ import {
   HANGUP_DELAY_SECONDS,
   UNAVAILABLE_MESSAGE,
   TIMES_TO_EMIT_UNLOCK_DIGIT,
-} from "@/consts";
-import { DoorUpdateSchema } from "@/schemas/door";
-import { DoorStore } from "@/stores/door";
+} from "../consts";
+import { DoorUpdateSchema } from "../schemas/door";
+import { DoorStore } from "../stores/door";
 
 // Parse comma-separated phone numbers from environment variables.
 const getPhoneNumberList = (str?: string): string[] => {

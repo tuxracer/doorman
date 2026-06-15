@@ -154,8 +154,17 @@ The interface shows:
 
 ## Deploy 🚀
 
-Doorman builds to a portable Node server. Build it, then run it anywhere Node runs (a
-VPS, Docker, Fly, Render, Railway):
+### On Vercel
+
+Vercel serves the built SPA as static files and runs the `/api` routes as Functions.
+`api/door.ts` and `api/answer.ts` wrap the same Hono app, so no extra config is needed:
+deploy the repo and set the environment variables from the section above in the project
+settings. The Twilio webhook URL stays `https://your-domain.com/api/answer`.
+
+### Anywhere else (portable Node server)
+
+Doorman also builds to a single Node server you can run anywhere Node runs (a VPS,
+Docker, Fly, Render, Railway):
 
 ```bash
 pnpm build
@@ -163,8 +172,8 @@ pnpm start
 ```
 
 `pnpm start` serves the built UI and the `/api` routes on one port (default `3000`,
-override with `PORT`). Set the environment variables from the section above on your
-host. Point the Twilio voice webhook at `https://your-domain.com/api/answer`.
+override with `PORT`). Set the environment variables on your host and point the Twilio
+voice webhook at `https://your-domain.com/api/answer`.
 
 ---
 
