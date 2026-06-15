@@ -1,24 +1,570 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+
+    --bg: #14110d;
+    --bg-2: #1b1712;
+    --bg-3: #251f18;
+    --line: rgba(244, 236, 225, 0.09);
+    --line-strong: rgba(244, 236, 225, 0.16);
+
+    --text: #f4ede2;
+    --text-dim: #ab9f8d;
+    --text-faint: #6f665a;
+
+    --good: #79c98c;
+    --info: #79a6d6;
+    --bad: #e0795f;
+
+    /*
+     * Accent is driven by door state and falls back to a neutral idle tone.
+     * --accent       core accent (dots, knob, tints)
+     * --accent-bright lighter accent for the lit knob highlight
+     * --accent-text  accent used as text/icon, tuned to contrast with --bg
+     */
+    --accent: #8b8073;
+    --accent-bright: #b3a896;
+    --accent-text: #c8bda9;
+    --accent-rgb: 139, 128, 115;
+  }
+
+  /* Auto-unlock live: warm brass. Secured: calm steel. */
+  [data-state="live"] {
+    --accent: #ecb650;
+    --accent-bright: #f8d78d;
+    --accent-text: #f4cd76;
+    --accent-rgb: 236, 182, 80;
+  }
+  [data-state="secure"] {
+    --accent: #84a4b6;
+    --accent-bright: #b9d2de;
+    --accent-text: #b9d2de;
+    --accent-rgb: 132, 164, 182;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Page scaffold: full viewport with the atmospheric background behind it. */
+  .dm-stage {
+    position: relative;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1rem, 4vw, 2.5rem);
+    padding-top: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-top));
+    padding-bottom: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-bottom));
+    overflow: hidden;
+  }
+
+  /* State-tinted radial glow. Swaps color with the door state, breathes when live. */
+  .dm-glow {
+    position: fixed;
+    inset: -25% -10% auto -10%;
+    height: 70vh;
+    pointer-events: none;
+    z-index: 0;
+    background: radial-gradient(
+      55% 60% at 50% 0%,
+      rgba(var(--accent-rgb), 0.32),
+      rgba(var(--accent-rgb), 0.06) 45%,
+      transparent 70%
+    );
+    filter: blur(8px);
+    opacity: 0.85;
+    transition: opacity 0.6s ease;
+  }
+  [data-state="live"] .dm-glow {
+    animation: dm-breathe 7s ease-in-out infinite;
+  }
+  [data-state="idle"] .dm-glow {
+    opacity: 0.4;
+  }
+
+  /* Fine film grain so the dark panel never reads as flat black. */
+  .dm-grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* The card itself: warm raised panel with a soft top highlight and deep shadow. */
+  .dm-panel {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 27rem;
+    border-radius: 28px;
+    padding: clamp(1.5rem, 5vw, 2.25rem);
+    background: linear-gradient(180deg, var(--bg-2), var(--bg));
+    border: 1px solid var(--line);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 1px 0 rgba(0, 0, 0, 0.4),
+      0 50px 90px -40px rgba(0, 0, 0, 0.85);
+  }
+  /* Hairline brass frame that tightens as the panel comes alive. */
+  .dm-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      160deg,
+      rgba(var(--accent-rgb), 0.45),
+      transparent 35%,
+      transparent 70%,
+      rgba(var(--accent-rgb), 0.18)
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+
+  .dm-rule {
+    height: 1px;
+    border: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--line-strong) 20%,
+      var(--line-strong) 80%,
+      transparent
+    );
+  }
+
+  /* Eyebrow / label / data type system: Space Mono, tracked, upper. */
+  .dm-mono {
+    font-family: var(--font-mono);
+  }
+  .dm-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+
+  .dm-display {
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 144;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.02;
+  }
+
+  /* Duty badge in the header. */
+  .dm-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid rgba(var(--accent-rgb), 0.35);
+    background: rgba(var(--accent-rgb), 0.08);
+    color: var(--accent-text);
+    transition:
+      color 0.5s ease,
+      border-color 0.5s ease,
+      background-color 0.5s ease;
+  }
+  .dm-badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.7);
+    transition: background-color 0.5s ease;
+  }
+  [data-state="live"] .dm-badge-dot {
+    animation: dm-pulse 2.4s ease-in-out infinite;
+  }
+
+  /* The tactile switch. Track travel is fixed so the knob glides smoothly. */
+  .dm-switch {
+    position: relative;
+    display: inline-flex;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dm-switch:disabled {
+    cursor: default;
+  }
+  .dm-switch-track {
+    position: relative;
+    display: block;
+    width: 220px;
+    height: 76px;
+    border-radius: 999px;
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0)),
+      var(--bg-3);
+    border: 1px solid var(--line-strong);
+    box-shadow:
+      inset 0 2px 6px rgba(0, 0, 0, 0.55),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+    transition:
+      border-color 0.5s ease,
+      box-shadow 0.5s ease,
+      background 0.5s ease;
+  }
+  .dm-switch[data-on="true"] .dm-switch-track {
+    border-color: rgba(var(--accent-rgb), 0.5);
+    background:
+      linear-gradient(
+        180deg,
+        rgba(var(--accent-rgb), 0.24),
+        rgba(var(--accent-rgb), 0.06)
+      ),
+      var(--bg-3);
+    box-shadow:
+      inset 0 1px 3px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(var(--accent-rgb), 0.14),
+      0 16px 44px -12px rgba(var(--accent-rgb), 0.55);
+  }
+  .dm-switch:focus-visible {
+    outline: none;
+  }
+  .dm-switch:focus-visible .dm-switch-track {
+    box-shadow:
+      inset 0 2px 6px rgba(0, 0, 0, 0.55),
+      0 0 0 3px rgba(var(--accent-rgb), 0.45);
+  }
+
+  .dm-switch-knob {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(180deg, #f3ecdf, #c8baa4);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.6),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.25),
+      0 8px 18px -6px rgba(0, 0, 0, 0.7);
+    transform: translateX(0);
+    transition:
+      transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
+      background 0.5s ease,
+      box-shadow 0.5s ease;
+  }
+  .dm-switch[data-on="true"] .dm-switch-knob {
+    transform: translateX(144px);
+    background: linear-gradient(180deg, var(--accent-bright), var(--accent));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      0 8px 22px -4px rgba(var(--accent-rgb), 0.75);
+  }
+  .dm-switch[data-indeterminate="true"] .dm-switch-knob {
+    transform: translateX(72px);
+    animation: dm-pulse 1.6s ease-in-out infinite;
+  }
+  .dm-switch:active:not(:disabled) .dm-switch-knob {
+    filter: brightness(1.05);
+  }
+
+  .dm-knob-icon {
+    grid-area: 1 / 1;
+    width: 26px;
+    height: 26px;
+    color: #2a231a;
+    transition: opacity 0.32s ease;
+  }
+  .dm-knob-icon-unlock {
+    opacity: 0;
+  }
+  .dm-switch[data-on="true"] .dm-knob-icon-lock {
+    opacity: 0;
+  }
+  .dm-switch[data-on="true"] .dm-knob-icon-unlock {
+    opacity: 1;
+  }
+  .dm-switch[data-indeterminate="true"] .dm-knob-icon {
+    opacity: 0;
+  }
+
+  .dm-switch-ghost {
+    position: absolute;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    transform: translateY(-50%);
+    color: var(--text-faint);
+    transition:
+      color 0.5s ease,
+      opacity 0.5s ease;
+  }
+  .dm-switch-ghost-left {
+    left: 23px;
+    opacity: 0.55;
+  }
+  .dm-switch-ghost-right {
+    right: 23px;
+    opacity: 0.3;
+  }
+  .dm-switch[data-on="true"] .dm-switch-ghost-left {
+    opacity: 0.25;
+  }
+  .dm-switch[data-on="true"] .dm-switch-ghost-right {
+    color: rgba(var(--accent-rgb), 0.9);
+    opacity: 0.6;
+  }
+
+  /* Activity ledger rows. */
+  .dm-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 0.25rem;
+    transition: padding-left 0.25s ease;
+  }
+  .dm-row + .dm-row {
+    border-top: 1px solid var(--line);
+  }
+  .dm-row:hover {
+    padding-left: 0.6rem;
+  }
+  .dm-row-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    flex: none;
+    box-shadow: 0 0 12px -1px currentColor;
+  }
+
+  /* Live sync indicator in the footer. */
+  .dm-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--good);
+    box-shadow: 0 0 10px -1px var(--good);
+    animation: dm-pulse 2.4s ease-in-out infinite;
+  }
+
+  /* Staggered entrance. */
+  .dm-rise {
+    animation: dm-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .dm-skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--bg-3) 25%,
+      rgba(244, 236, 225, 0.08) 50%,
+      var(--bg-3) 75%
+    );
+    background-size: 200% 100%;
+    animation: dm-shimmer 1.4s linear infinite;
+    border-radius: 6px;
+  }
+}
+
+@keyframes dm-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dm-breathe {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes dm-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.55);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(var(--accent-rgb), 0);
+    opacity: 0.85;
+  }
+}
+
+@keyframes dm-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dm-rise,
+  .dm-glow,
+  .dm-badge-dot,
+  .dm-live-dot,
+  .dm-switch-knob,
+  .dm-skeleton {
+    animation: none !important;
+  }
+  .dm-switch-knob {
+    transition:
+      transform 0.001s,
+      background 0.4s ease,
+      box-shadow 0.4s ease;
+  }
+}
+
+/* Light mode: warm paper and ink, the same concierge character inverted. */
+@layer base {
+  @media (prefers-color-scheme: light) {
+    :root {
+      color-scheme: light;
+
+      --bg: #ece2d0;
+      --bg-2: #fbf6ec;
+      --bg-3: #e7dcc7;
+      --line: rgba(58, 44, 20, 0.12);
+      --line-strong: rgba(58, 44, 20, 0.2);
+
+      --text: #2a2118;
+      --text-dim: #6a5f4e;
+      --text-faint: #9a8f7c;
+
+      --good: #3f9d5d;
+      --info: #3f7fbf;
+      --bad: #cf5b3f;
+
+      --accent: #a99a85;
+      --accent-bright: #cabfa9;
+      --accent-text: #6a5f4e;
+      --accent-rgb: 169, 154, 133;
+    }
+
+    [data-state="live"] {
+      --accent: #c9912f;
+      --accent-bright: #e8b65a;
+      --accent-text: #8f5f12;
+      --accent-rgb: 201, 145, 47;
+    }
+    [data-state="secure"] {
+      --accent: #5a86a0;
+      --accent-bright: #83aec4;
+      --accent-text: #3c6076;
+      --accent-rgb: 90, 134, 160;
+    }
+  }
+}
+
+@layer components {
+  @media (prefers-color-scheme: light) {
+    /* Softer, warmer glow so it reads as light rather than a colored haze. */
+    .dm-glow {
+      background: radial-gradient(
+        55% 60% at 50% 0%,
+        rgba(var(--accent-rgb), 0.2),
+        rgba(var(--accent-rgb), 0.05) 45%,
+        transparent 70%
+      );
+      opacity: 0.6;
+    }
+
+    /* Multiply lets the grain texture show against a pale surface. */
+    .dm-grain {
+      mix-blend-mode: multiply;
+      opacity: 0.035;
+    }
+
+    .dm-panel {
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.8),
+        0 1px 1px rgba(58, 44, 20, 0.05),
+        0 28px 56px -34px rgba(58, 44, 20, 0.35);
+    }
+
+    .dm-switch-track {
+      background:
+        linear-gradient(180deg, rgba(58, 44, 20, 0.1), rgba(58, 44, 20, 0)),
+        var(--bg-3);
+      box-shadow:
+        inset 0 2px 5px rgba(58, 44, 20, 0.16),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.55);
+    }
+    .dm-switch[data-on="true"] .dm-switch-track {
+      box-shadow:
+        inset 0 1px 3px rgba(58, 44, 20, 0.14),
+        0 0 0 1px rgba(var(--accent-rgb), 0.3),
+        0 14px 36px -14px rgba(var(--accent-rgb), 0.55);
+    }
+    .dm-switch:focus-visible .dm-switch-track {
+      box-shadow:
+        inset 0 2px 5px rgba(58, 44, 20, 0.16),
+        0 0 0 3px rgba(var(--accent-rgb), 0.5);
+    }
+
+    /* Off-state knob reads as bright porcelain on the recessed track. */
+    .dm-switch-knob {
+      background: linear-gradient(180deg, #ffffff, #ece2d0);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        inset 0 -2px 4px rgba(58, 44, 20, 0.1),
+        0 6px 14px -4px rgba(58, 44, 20, 0.3);
+    }
+
+    .dm-skeleton {
+      background: linear-gradient(
+        90deg,
+        var(--bg-3) 25%,
+        rgba(58, 44, 20, 0.06) 50%,
+        var(--bg-3) 75%
+      );
+      background-size: 200% 100%;
+    }
+  }
 }
