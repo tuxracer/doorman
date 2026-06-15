@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDoor } from "@/hooks/useDoor";
 import { DOOR_STATUS_REFRESH_INTERVAL_MS } from "@/consts";
 import { Toggle } from "./Toggle";
-import { KeyIcon } from "./icons";
+import { KeyIcon, WifiOffIcon } from "./icons";
 import { formatExact, formatRelative } from "./time";
 
 /** Re-render on an interval so the ledger's relative times stay honest between fetches. */
@@ -37,17 +37,29 @@ const COPY = {
 } as const;
 
 export const Controller: React.FC = () => {
-  const { data, error, isLoading, update } = useDoor();
+  const { data, error, isLoading, update, isOffline, lastUpdatedAt } =
+    useDoor();
   const now = useNow(DOOR_STATUS_REFRESH_INTERVAL_MS ?? 30_000);
 
   if (error && !data) {
-    return <ErrorPanel message={error.message} />;
+    return <ErrorPanel message={error.message} offline={isOffline} />;
   }
 
   const isUnlockAllowed = data?.isUnlockAllowed ?? null;
   const state: "live" | "secure" | "idle" =
     isUnlockAllowed === null ? "idle" : isUnlockAllowed ? "live" : "secure";
   const copy = COPY[state];
+
+  // Only show a "last known" treatment when we already have a state to mute.
+  const disconnected = isOffline && !!data;
+  const lastConfirmed =
+    lastUpdatedAt !== null
+      ? `Last confirmed ${formatRelative(lastUpdatedAt, now)}.`
+      : "Showing the last known status.";
+  const eyebrow = disconnected ? "Last known status" : "Auto-unlock";
+  const badge = disconnected ? "Offline" : copy.badge;
+  const sub = disconnected ? lastConfirmed : copy.sub;
+  const hint = disconnected ? "Reconnect to make changes" : copy.hint;
 
   const ledger = [
     {
@@ -71,7 +83,11 @@ export const Controller: React.FC = () => {
   ];
 
   return (
-    <main className="dm-stage" data-state={state}>
+    <main
+      className="dm-stage"
+      data-state={state}
+      data-offline={disconnected ? "true" : undefined}
+    >
       <div className="dm-glow" />
       <div className="dm-grain" />
 
@@ -97,7 +113,7 @@ export const Controller: React.FC = () => {
           </div>
           <span className="dm-badge dm-eyebrow">
             <span className="dm-badge-dot" />
-            {copy.badge}
+            {badge}
           </span>
         </header>
 
@@ -106,12 +122,15 @@ export const Controller: React.FC = () => {
           style={{ animationDelay: "120ms" }}
         >
           <p className="dm-eyebrow" style={{ color: "var(--accent-text)" }}>
-            Auto-unlock
+            {eyebrow}
           </p>
           {state === "idle" ? (
             <div className="mx-auto mt-4 h-9 w-56 dm-skeleton" />
           ) : (
-            <h1 className="dm-display mt-3 text-[2.4rem] sm:text-[2.7rem]">
+            <h1
+              className="dm-display mt-3 text-[2.4rem] sm:text-[2.7rem]"
+              style={disconnected ? { color: "var(--text-dim)" } : undefined}
+            >
               {copy.headline}
             </h1>
           )}
@@ -119,9 +138,20 @@ export const Controller: React.FC = () => {
             className="mx-auto mt-3 max-w-[19rem] text-[0.95rem] leading-relaxed"
             style={{ color: "var(--text-dim)" }}
           >
-            {copy.sub}
+            {sub}
           </p>
         </div>
+
+        {disconnected && (
+          <div
+            role="status"
+            className="dm-offline-notice dm-rise"
+            style={{ animationDelay: "160ms" }}
+          >
+            <WifiOffIcon className="h-[18px] w-[18px]" />
+            <span className="dm-eyebrow">Can't reach the doorman</span>
+          </div>
+        )}
 
         <div
           className="dm-rise mt-9 flex flex-col items-center gap-4"
@@ -129,11 +159,11 @@ export const Controller: React.FC = () => {
         >
           <Toggle
             checked={isUnlockAllowed}
-            disabled={isLoading && !data}
+            disabled={isOffline || (isLoading && !data)}
             onChange={(next) => update({ isUnlockAllowed: next })}
           />
           <p className="dm-eyebrow" style={{ color: "var(--text-faint)" }}>
-            {copy.hint}
+            {hint}
           </p>
         </div>
 
@@ -172,9 +202,9 @@ export const Controller: React.FC = () => {
           className="dm-rise mt-6 flex items-center justify-center gap-2"
           style={{ animationDelay: "380ms" }}
         >
-          <span className="dm-live-dot" />
+          <span className={disconnected ? "dm-offline-dot" : "dm-live-dot"} />
           <span className="dm-eyebrow" style={{ color: "var(--text-faint)" }}>
-            Live
+            {disconnected ? "Offline" : "Live"}
           </span>
         </footer>
       </section>
@@ -182,7 +212,10 @@ export const Controller: React.FC = () => {
   );
 };
 
-const ErrorPanel: React.FC<{ message: string }> = ({ message }) => (
+const ErrorPanel: React.FC<{ message: string; offline: boolean }> = ({
+  message,
+  offline,
+}) => (
   <main className="dm-stage" data-state="secure">
     <div className="dm-glow" />
     <div className="dm-grain" />
@@ -197,12 +230,16 @@ const ErrorPanel: React.FC<{ message: string }> = ({ message }) => (
       >
         <KeyIcon className="h-5 w-5" />
       </span>
-      <h1 className="dm-display mt-5 text-[2rem]">Can't reach the door</h1>
+      <h1 className="dm-display mt-5 text-[2rem]">
+        {offline ? "You're offline" : "Can't reach the door"}
+      </h1>
       <p
         className="mx-auto mt-3 max-w-[20rem] text-[0.95rem] leading-relaxed"
         style={{ color: "var(--text-dim)" }}
       >
-        The doorman isn't answering right now. It will keep trying on its own.
+        {offline
+          ? "Doorman will reconnect on its own once you are back online."
+          : "The doorman isn't answering right now. It will keep trying on its own."}
       </p>
       <p
         className="dm-mono mx-auto mt-4 max-w-[20rem] truncate text-[0.75rem]"
