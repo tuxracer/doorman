@@ -6,10 +6,10 @@ is enabled. A web UI toggles auto-unlock. See `README.md` for end-user/Twilio se
 
 ## Commands
 
-    pnpm install      # pnpm@11.6.0 is pinned (packageManager); README's "npm install" is stale
-    pnpm dev          # dev server on http://localhost:3000
-    pnpm build        # next build
-    pnpm start        # serve production build
+    pnpm install      # pnpm@11.6.0 is pinned (packageManager)
+    pnpm dev          # Vite dev server on http://localhost:5173 (SPA + Hono /api in one process)
+    pnpm build        # vite build (SPA to dist/) then vite build --ssr (server to dist-server/)
+    pnpm start        # node dist-server/node.js (serves dist/ and /api on one port)
 
 No lint or test scripts exist and there is no test framework. Formatting is
 Prettier (`.prettierrc`) with **double quotes**.
@@ -24,13 +24,19 @@ No AI-isms in any docs, comments, or commit messages:
 
 ## Architecture
 
-- `src/app/api/answer/route.ts`: Twilio voice webhook (POST). Returns **TwiML XML**
-  (`text/xml`), not JSON. Check order is blacklist, then whitelist, then
-  `isUnlockAllowed`; records timestamps, then plays the unlock digit.
-- `src/app/api/door/route.ts`: JSON REST for door state, `GET`/`PATCH`/`DELETE`
-  (`force-dynamic`).
-- `src/stores/door.ts`: Supabase data-access layer (`DoorStore`). `import "server-only"`;
-  never import client-side.
+- `src/server/app.ts`: Hono app with all `/api` routes.
+  - `POST /api/answer`: Twilio voice webhook. Returns **TwiML XML** (`text/xml`), not
+    JSON. Check order is blacklist, then whitelist, then `isUnlockAllowed`; records
+    timestamps, then plays the unlock digit.
+  - `GET`/`PATCH`/`DELETE /api/door`: JSON REST for door state.
+- `src/server/node.ts`: production entry. Serves the built SPA from `dist/` and the
+  `/api` routes via `@hono/node-server` on one port.
+- `index.html` + `src/main.tsx`: Vite SPA entry; mounts `<Controller />` on the client.
+- `vite.config.ts`: `@hono/vite-dev-server` runs the Hono app inside the dev server so
+  `/api/*` works under `pnpm dev`; also the Tailwind and React Compiler plugins.
+- `src/stores/door.ts`: Supabase data-access layer (`DoorStore`). Server-only by
+  design (reads `SUPABASE_SECRET_KEY`); never import it from client code. Only
+  `src/server/app.ts` imports it.
 - `src/schemas/door.ts`: Zod schemas (`Door`, `DoorUpdate`); the source of truth for shape.
 - `src/hooks/useDoor/`: SWR hook with optimistic update plus revert on failure.
 - `src/components/Controller/`: single-button toggle UI.
@@ -39,12 +45,10 @@ No AI-isms in any docs, comments, or commit messages:
 
 ## Rendering
 
-**Client-side rendering and hydration only.** Render and hydrate the UI entirely
-on the client. Never use server-side rendering (SSR) or server-side hydration.
-UI components are Client Components (`"use client"`); do not render UI from Server
-Components. This does not change the API route handlers in `src/app/api/*` or the
-server-only `DoorStore`, which run on the server by design (they serve data, they
-do not render UI).
+**Client-side rendering only.** The UI is a Vite SPA: `index.html` loads
+`src/main.tsx`, which mounts `<Controller />` in the browser. There is no SSR and no
+server-side hydration. This is separate from the Hono server in `src/server/*`, which
+runs on the server by design (it serves data and TwiML, it does not render UI).
 
 ## Patterns & gotchas
 
@@ -59,11 +63,11 @@ do not render UI).
 - **Twilio is TwiML-only.** The `twilio` package is used solely to build TwiML
   (no credentials needed). `TWILIO_*`, `NOTIFY_PHONE_NUMBER`, and SMS notification are
   in the README but **not yet implemented**.
-- **React Compiler is on** (`next.config.ts`); manual `useMemo`/`useCallback` are
-  usually unnecessary.
+- **React Compiler is on** (via `@vitejs/plugin-react` + `babel-plugin-react-compiler`
+  in `vite.config.ts`); manual `useMemo`/`useCallback` are usually unnecessary.
 - **Phone lists** are parsed once at module load. Blacklist always rejects; whitelist
   is enforced only when non-empty.
-- **Path alias:** `@/*` maps to `src/*`.
+- **Path alias:** `@/*` maps to `src/*` (configured in `vite.config.ts` and `tsconfig.json`).
 
 ## Environment
 

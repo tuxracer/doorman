@@ -100,16 +100,10 @@ Edit `src/consts.ts` to customize behavior:
 ## Run the Development Server 🚧
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
-Open your browser at [http://localhost:3000](http://localhost:3000) to view the control panel.
+Open your browser at [http://localhost:5173](http://localhost:5173) to view the control panel.
 
 ---
 
@@ -150,19 +144,28 @@ The interface shows:
 
 ## Tech Stack
 
-- **Next.js**: Web app and API routes
+- **Vite**: SPA build and dev server
+- **Hono**: API routes, run as a portable Node server
 - **Twilio**: Call handling and DTMF control
 - **Supabase**: State storage
 - **SWR**: Data fetching and caching
 
 ---
 
-## Deploy on Vercel 🚀
+## Deploy 🚀
 
-Deploy quickly using [Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
+Doorman builds to a portable Node server. Build it, then run it anywhere Node runs (a
+VPS, Docker, Fly, Render, Railway):
 
-Make sure to set all environment variables in your Vercel project settings.
+```bash
+pnpm build
+pnpm start
+```
+
+`pnpm start` serves the built UI and the `/api` routes on one port (default `3000`,
+override with `PORT`). Set the environment variables from the section above on your
+host. Point the Twilio voice webhook at `https://your-domain.com/api/answer`.
 
 ---
 
-Enjoy seamless door access control with Doorman 🛎️
+Enjoy door access control with Doorman 🛎️
