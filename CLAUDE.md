@@ -86,3 +86,7 @@ on a branch, `git rebase main` to update it, and land it with a fast-forward mer
 
 **Never push to remotes** (`origin`, `codeberg`). The maintainer pushes manually.
 Do not run `git push`, and do not ask whether to push. Stop after committing locally.
+
+**`docs/superpowers/` is gitignored** (`.gitignore:41`). Brainstorm specs and plans
+written there are intentionally kept local and untracked, so new files under it will
+not show in `git status`. That is expected, not a mistake.
