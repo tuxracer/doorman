@@ -35,7 +35,7 @@ timestamps to a proper `timestamptz` representation end-to-end.
 | Decision | Choice | Rationale |
 | --- | --- | --- |
 | Client | `@supabase/supabase-js` (PostgREST/HTTP) | Direct analog to the Upstash REST client; no connection-pooling concerns under serverless/Fluid Compute; server-only. |
-| Auth model | Service-role key + RLS enabled, **no policies** | All access is server-side. Service role bypasses RLS; anon/authenticated keys get zero access to the table. |
+| Auth model | Secret key + RLS enabled, **no policies** | All access is server-side. The secret key bypasses RLS; anon/authenticated keys get zero access to the table. |
 | Table shape | Single typed row with a singleton guard | Idiomatic Postgres; readable/editable in the Supabase dashboard. |
 | Timestamps | `timestamptz` columns, **ISO strings end-to-end** | The app's `Door` type speaks ISO strings; no epoch math in the store. |
 | Data migration | None | One tiny record; `get()` lazily initializes `DEFAULT_DOOR` (locked) when the row is absent — the safe state on cutover. |
@@ -53,7 +53,7 @@ create table door (
 );
 
 alter table door enable row level security;
--- No policies are created, on purpose. The server uses the service-role key,
+-- No policies are created, on purpose. The server uses the secret key,
 -- which bypasses RLS. anon/authenticated keys cannot read or write this table.
 ```
 
@@ -132,7 +132,7 @@ const toRow = (door: Door): DoorRow => ({
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.SUPABASE_SECRET_KEY!,
     { auth: { persistSession: false } },
 );
 
@@ -196,9 +196,9 @@ since `new Date()` accepts ISO strings.
 
 Environment variables:
 - Remove `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
-- Add `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`.
+- Add `SUPABASE_URL`, `SUPABASE_SECRET_KEY`.
 
-The service-role key is secret and server-only — never `NEXT_PUBLIC_`. The store is
+The secret key is secret and server-only — never `NEXT_PUBLIC_`. The store is
 already `import "server-only"`. Provisioning can be a standalone Supabase project or
 the Vercel Marketplace Supabase integration (which injects the keys).
 
@@ -215,7 +215,7 @@ as 500s from the API routes, same as today.
 ## Verification (manual — no test harness exists in the repo)
 
 1. Run the SQL migration in Supabase.
-2. Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` locally; `npm run dev`.
+2. Set `SUPABASE_URL` and `SUPABASE_SECRET_KEY` locally; `npm run dev`.
 3. `GET /api/door` → returns the default blob and creates the singleton row
    (confirm the row in the Supabase dashboard).
 4. `PATCH /api/door` toggling `isUnlockAllowed` → row updates; the web UI reflects it.

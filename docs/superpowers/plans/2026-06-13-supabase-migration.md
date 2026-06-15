@@ -4,7 +4,7 @@
 
 **Goal:** Replace the single-key Upstash Redis store with a Supabase (Postgres) `door` table, keeping the `DoorStore` interface and all API/UI behavior identical, while moving timestamps to `timestamptz` represented as ISO strings end-to-end.
 
-**Architecture:** All storage lives behind `DoorStore` in `src/stores/door.ts`. The migration rewrites that store on `@supabase/supabase-js` (PostgREST/HTTP, service-role key, RLS with no policies), and switches the three `Door` timestamp fields from epoch-ms numbers to ISO 8601 strings. The schema change ripples into the answer webhook (`Date.now()` → `new Date().toISOString()`) and the controller's `renderDate` parameter type. Because these changes are type-coupled, they land in one commit so the project always typechecks.
+**Architecture:** All storage lives behind `DoorStore` in `src/stores/door.ts`. The migration rewrites that store on `@supabase/supabase-js` (PostgREST/HTTP, secret key, RLS with no policies), and switches the three `Door` timestamp fields from epoch-ms numbers to ISO 8601 strings. The schema change ripples into the answer webhook (`Date.now()` → `new Date().toISOString()`) and the controller's `renderDate` parameter type. Because these changes are type-coupled, they land in one commit so the project always typechecks.
 
 **Tech Stack:** Next.js 16, React 19, TypeScript, Zod 4, `@supabase/supabase-js`, Supabase Postgres.
 
@@ -32,7 +32,7 @@ create table door (
   constraint door_singleton check (id)
 );
 
--- Lock the table down. The server uses the service-role key, which bypasses RLS.
+-- Lock the table down. The server uses the secret key, which bypasses RLS.
 -- No policies are created, so anon/authenticated keys get zero access.
 alter table door enable row level security;
 ```
@@ -165,7 +165,7 @@ const toRow = (door: Door): DoorRow => ({
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.SUPABASE_SECRET_KEY!,
     { auth: { persistSession: false } },
 );
 
@@ -291,7 +291,7 @@ with:
 
 ```
 SUPABASE_URL=your_supabase_url
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+SUPABASE_SECRET_KEY=your_supabase_secret_key
 ```
 
 Leave the Twilio and phone-number variables unchanged. (The pre-existing SMS mentions in the README are out of scope for this migration.)
@@ -309,7 +309,7 @@ git commit -m "docs: update README for Supabase env vars"
 
 **Files:** none (operational verification)
 
-> Requires a real Supabase project. The store calls `createClient` at module load, so `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` must be set before the dev server starts.
+> Requires a real Supabase project. The store calls `createClient` at module load, so `SUPABASE_URL` and `SUPABASE_SECRET_KEY` must be set before the dev server starts.
 
 - [ ] **Step 1: Apply the migration**
 
@@ -321,7 +321,7 @@ Add to `.env.local`:
 
 ```
 SUPABASE_URL=...           # Project URL (Settings → API)
-SUPABASE_SERVICE_ROLE_KEY=...   # service_role secret (Settings → API)
+SUPABASE_SECRET_KEY=...   # secret key (Settings → API)
 ```
 
 Then run:
@@ -394,7 +394,7 @@ Expected: `204`, then a fresh default blob (row recreated by lazy init).
 ## Self-Review
 
 **Spec coverage:**
-- Client = `@supabase/supabase-js`, service-role + RLS no-policies → Task 3 store + Task 1 SQL. ✓
+- Client = `@supabase/supabase-js`, secret key + RLS no-policies → Task 3 store + Task 1 SQL. ✓
 - Single typed row + singleton guard → Task 1. ✓
 - `timestamptz`, ISO strings end-to-end → Task 1 (columns) + Task 3 (schema/webhook/controller). ✓
 - Lazy `DEFAULT_DOOR` init, no data migration → Task 3 store `get()`; verified Task 5 Step 3/6. ✓
