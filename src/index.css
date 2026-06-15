@@ -255,6 +255,7 @@
   }
 
   .dm-switch-knob {
+    touch-action: none;
     position: absolute;
     top: 6px;
     left: 6px;
