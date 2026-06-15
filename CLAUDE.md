@@ -56,7 +56,13 @@ real browser or device.
   `src/server/app.ts` imports it.
 - `src/schemas/door.ts`: Zod schemas (`Door`, `DoorUpdate`); the source of truth for shape.
 - `src/hooks/useDoor/`: SWR hook with optimistic update plus revert on failure.
-- `src/components/Controller/`: single-button toggle UI.
+  Also derives `isOffline` (browser offline via `src/hooks/useOnlineStatus/`, or a
+  failed poll) and `lastUpdatedAt`. The fetcher throws on a non-OK response so
+  server errors count as "cannot fetch the status".
+- `src/components/Controller/`: single-button toggle UI. When `isOffline`, it mutes
+  the card into a disconnected state (`data-offline="true"`): drained accent,
+  "Offline" badge and footer, a "Can't reach the doorman" notice, and a disabled
+  toggle, so a stale reading never looks live.
 - `src/consts.ts`: tunable behavior (unlock digit, delays, refresh interval).
 - `supabase/migrations/0001_door.sql`: schema.
 
